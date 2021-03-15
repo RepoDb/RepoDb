@@ -21,7 +21,6 @@ namespace RepoDb
         /// <param name="precision">The precision of the field.</param>
         /// <param name="scale">The scale of the field.</param>
         /// <param name="databaseType">The database type of the field.</param>
-        /// <param name="hasDefaultValue">The value that indicates wheter the field has a default value</param>
         public DbField(string name,
             bool isPrimary,
             bool isIdentity,
@@ -58,6 +57,19 @@ namespace RepoDb
             DatabaseType = databaseType;
         }
 
+        /// <summary>
+        /// Creates a new instance of <see cref="DbField"/> object.
+        /// </summary>
+        /// <param name="name">The name of the field.</param>
+        /// <param name="isPrimary">The value that indicates whether the field is primary.</param>
+        /// <param name="isIdentity">The value that indicates whether the field is identity.</param>
+        /// <param name="isNullable">The value that indicates whether the field is nullable.</param>
+        /// <param name="type">The equivalent .NET CLR type of the field.</param>
+        /// <param name="size">The size of the field.</param>
+        /// <param name="precision">The precision of the field.</param>
+        /// <param name="scale">The scale of the field.</param>
+        /// <param name="databaseType">The database type of the field.</param>
+        /// <param name="hasDefaultValue">The value that indicates wheter the field has a default value.</param>
         public DbField(string name,
             bool isPrimary,
             bool isIdentity,
