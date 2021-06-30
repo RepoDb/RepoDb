@@ -20,17 +20,13 @@ namespace RepoDb
         private static ClassProperty GetTargetProperty<TEntity>(Field field)
             where TEntity : class
         {
-            var properties = PropertyCache.Get<TEntity>();
-
             // Failing at some point - for base interfaces
-            var property = properties
-                .FirstOrDefault(p =>
-                    string.Equals(p.GetMappedName(), field.Name, StringComparison.OrdinalIgnoreCase));
+            var property = MappedPropertyCache.Get<TEntity>(field.Name);
 
             // Matches to the actual class properties
             if (property == null)
             {
-                property = properties
+                property = PropertyCache.Get<TEntity>()
                     .FirstOrDefault(p =>
                         string.Equals(p.PropertyInfo.Name, field.Name, StringComparison.OrdinalIgnoreCase));
             }
@@ -482,18 +478,15 @@ namespace RepoDb
             }
 
             // Variables
-            var properties = PropertyCache.Get<TEntity>();
             var name = PropertyMappedNameCache.Get(propertyInfo);
 
             // Failing at some point - for base interfaces
-            var property = properties
-                .FirstOrDefault(p =>
-                    string.Equals(p.GetMappedName(), name, StringComparison.OrdinalIgnoreCase));
+            var property = MappedPropertyCache.Get<TEntity>(name);
 
             // Matches to the actual class properties
             if (property == null)
             {
-                property = properties
+                property = PropertyCache.Get<TEntity>()
                     .FirstOrDefault(p =>
                         string.Equals(p.PropertyInfo.Name, name, StringComparison.OrdinalIgnoreCase));
             }

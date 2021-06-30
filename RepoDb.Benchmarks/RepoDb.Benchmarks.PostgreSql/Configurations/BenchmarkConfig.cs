@@ -29,7 +29,7 @@ namespace RepoDb.Benchmarks.PostgreSql.Configurations
             AddColumnProvider(DefaultColumnProviders.Metrics);
 
             var job = Job.ShortRun
-                .WithRuntime(CoreRuntime.Core50)
+                .WithRuntime(CoreRuntime.Core31)
                 .WithLaunchCount(DefaultConstants.DefaultLaunchCount)
                 .WithWarmupCount(DefaultConstants.DefaultWarmupCount)
                 .WithUnrollFactor(DefaultConstants.DefaultUnrollFactor)

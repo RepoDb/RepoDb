@@ -25,7 +25,7 @@ namespace RepoDb
         /// <returns>The instance of cached <see cref="ClassProperty"/> object.</returns>
         public static ClassProperty Get<TEntity>(Expression<Func<TEntity, object>> expression)
             where TEntity : class =>
-            Get(typeof(TEntity), ExpressionExtension.GetProperty<TEntity>(expression));
+            Get(typeof(TEntity), ExpressionExtension.GetProperty(expression));
 
         /// <summary>
         /// Gets the cached <see cref="ClassProperty"/> object of the data entity (via property name).
@@ -43,8 +43,7 @@ namespace RepoDb
         /// <param name="entityType">The type of the data entity.</param>
         /// <param name="propertyName">The name of the property.</param>
         /// <returns>The instance of cached <see cref="ClassProperty"/> object.</returns>
-        public static ClassProperty Get(Type entityType,
-            string propertyName)
+        public static ClassProperty Get(Type entityType, string propertyName)
         {
             // Validate the presence
             ThrowNullReferenceException(propertyName, "PropertyName");
@@ -71,8 +70,7 @@ namespace RepoDb
         /// <param name="entityType">The type of the data entity.</param>
         /// <param name="field">The instance of the <see cref="Field"/> object.</param>
         /// <returns>The instance of cached <see cref="ClassProperty"/> object.</returns>
-        public static ClassProperty Get(Type entityType,
-            Field field)
+        public static ClassProperty Get(Type entityType, Field field)
         {
             // Validate the presence
             ThrowNullReferenceException(field, "Field");
@@ -89,15 +87,14 @@ namespace RepoDb
         /// <param name="entityType">The type of the data entity.</param>
         /// <param name="propertyInfo">The instance of the <see cref="PropertyInfo"/> object.</param>
         /// <returns>The instance of cached <see cref="ClassProperty"/> object.</returns>
-        internal static ClassProperty Get(Type entityType,
-            PropertyInfo propertyInfo)
+        internal static ClassProperty Get(Type entityType, PropertyInfo propertyInfo)
         {
             // Validate the presence
             ThrowNullReferenceException(propertyInfo, "PropertyInfo");
 
             // Return the value
             return Get(entityType)?
-                .FirstOrDefault(p => p.PropertyInfo == propertyInfo ||
+                .FirstOrDefault(p => p.PropertyInfo == propertyInfo || 
                     string.Equals(p.GetMappedName(), PropertyMappedNameCache.Get(entityType, propertyInfo), StringComparison.OrdinalIgnoreCase));
         }
 
