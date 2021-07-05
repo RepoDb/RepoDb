@@ -1060,12 +1060,10 @@ namespace RepoDb
         private static IEnumerable<Field> GetActualFieldsInternal(IEnumerable<Field> fields,
             IEnumerable<DbField> dbFields,
             IDbSetting dbSetting)
-        {
-            return dbFields?.Any() == true ?
+            => dbFields?.Any() == true ?
                 fields.Where(f => dbFields.FirstOrDefault(df =>
                     string.Equals(df.Name.AsUnquoted(true, dbSetting), f.Name.AsUnquoted(true, dbSetting), StringComparison.OrdinalIgnoreCase)) != null) :
                 fields;
-        }
 
         /// <summary>
         ///
@@ -1093,7 +1091,7 @@ namespace RepoDb
                         null,
                         null,
                         null,
-                        null);
+                        null);// TODO understand how set thath a primary key can have a default value, and which is the desired behavior during insert operation of entity without explits fields
                 }
             }
             return DbFieldCache.Get(request.Connection, request.Name, request.Transaction)?.FirstOrDefault(f => f.IsPrimary);
@@ -1125,7 +1123,7 @@ namespace RepoDb
                         null,
                         null,
                         null,
-                        null);
+                        null);// TODO understand how set thath an identity can have a default value, and which is the desired behavior during insert operation of entity without explits fields
                 }
             }
             return DbFieldCache.Get(request.Connection, request.Name, request.Transaction)?.FirstOrDefault(f => f.IsIdentity);
