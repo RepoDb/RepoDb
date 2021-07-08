@@ -5,6 +5,7 @@ using RepoDb.Extensions;
 using System.Linq.Expressions;
 using System.Reflection;
 using RepoDb.Exceptions;
+using RepoDb.DataProviderFunctions;
 
 namespace RepoDb
 {
@@ -55,6 +56,12 @@ namespace RepoDb
         /// Gets or sets the type of the field.
         /// </summary>
         public Type Type { get; set; }
+
+        
+        /// <summary>
+        /// Creates an enumerable of <see cref="DataProviderFunction"/> objects. 
+        /// </summary>
+        public IEnumerable<DataProviderFunction> DataProviderFunctions { get; set; } = new List<DataProviderFunction>();
 
         #endregion
 

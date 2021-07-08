@@ -69,6 +69,13 @@
     <Compile Include="Contexts\Execution\InsertExecutionContext.cs" />
     <Compile Include="Contexts\Execution\InsertAllExecutionContext.cs" />
     <Compile Include="Contexts\Execution\InsertExecutionContextCache.cs" />
+    <Compile Include="DataProviderFunctions\DataProviderFunction.cs" />
+    <Compile Include="DataProviderFunctions\DataProviderFunctionBuilders\BaseDataProviderFunctionBuilder.cs" />
+    <Compile Include="DataProviderFunctions\DataProviderFunctionBuilders\IDataProviderFunctionBuilder.cs" />
+    <Compile Include="DataProviderFunctions\DataProviderFunctionBuilders\SqlServerFunctionBuilder.cs" />
+    <Compile Include="DataProviderFunctions\DataProviderFunctionExtractor.cs" />
+    <Compile Include="DataProviderFunctions\Exceptions\DataProviderFunctionDecoratorException.cs" />
+    <Compile Include="DataProviderFunctions\Exceptions\NotSupportedFunctionException.cs" />
     <Compile Include="Operations\BaseRepository\Exists.cs" />
     <Compile Include="Operations\BaseRepository\Sum.cs" />
     <Compile Include="Operations\BaseRepository\SumAll.cs" />
@@ -268,7 +275,6 @@
     <Compile Include="TypeMapper.cs" />
     <Compile Include="Types\SqlVariant.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

@@ -83,6 +83,7 @@
     <Compile Include="CustomObjects\CustomDbParameter.cs" />
     <Compile Include="CustomObjects\CustomDbParameterCollection.cs" />
     <Compile Include="CustomObjects\CustomDbTransaction.cs" />
+    <Compile Include="DataProviderFunctions\DataProviderFunctionExtractorTest.cs" />
     <Compile Include="DbHelpers\DbHelperTest.cs" />
     <Compile Include="Enumerations\ConjunctionTextTest.cs" />
     <Compile Include="Enumerations\OperationTextTest.cs" />
@@ -129,6 +130,7 @@
     <Compile Include="QueryGroups\QueryGroupParseExpressionForSingleTypeTest.cs" />
     <Compile Include="QueryGroups\QueryGroupParseExpressionForStartsWithMethodTest.cs" />
     <Compile Include="QueryGroups\QueryGroupParseExpressionForStringTypeTest.cs" />
+    <Compile Include="QueryGroups\QueryGroupParseExpressionForToUpperToLowerTest.cs" />
     <Compile Include="QueryGroups\QueryGroupParseExpressionOperationsTest.cs" />
     <Compile Include="QueryGroups\QueryGroupParseExpressionValuesTest.cs" />
     <Compile Include="Resolvers\ClientTypeToDbTypeResolverTest.cs" />

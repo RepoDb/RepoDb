@@ -9,6 +9,8 @@ using System.Reflection;
 using System.Dynamic;
 using System.Data;
 using RepoDb.Interfaces;
+using RepoDb.DataProviderFunctions;
+using RepoDb.DataProviderFunctions.DataProviderFunctionBuilders;
 
 namespace RepoDb
 {
@@ -764,7 +766,7 @@ namespace RepoDb
             // MethodCall
             else if (expression.Left.IsMethodCall())
             {
-                leftQueryGroup = Parse<TEntity>(expression.Left.ToMethodCall(), false, isEqualsTo);
+                leftQueryGroup = Parse<TEntity>(expression.Left.ToMethodCall(), false, isEqualsTo, expression);
             }
             else
             {
@@ -872,7 +874,8 @@ namespace RepoDb
 
         private static QueryGroup Parse<TEntity>(MethodCallExpression expression,
             bool isNot,
-            bool isEqualsTo)
+            bool isEqualsTo,
+            BinaryExpression parentExpression = null)
             where TEntity : class
         {
             // Check methods for the 'Like', both 'Array.<All|Any>()'
@@ -899,6 +902,11 @@ namespace RepoDb
                         return ParseContainsForArrayOrList<TEntity>(expression, isNot, isEqualsTo);
                     }
                 }
+                else if (expression.Object?.IsMethodCall() == true)
+                {   
+                    // Check for the (p => p.Property.ToUpper().Contains("A")) for LIKE
+                    return ParseContainsOrStartsWithOrEndsWithForStringProperty<TEntity>(expression, isNot, isEqualsTo);
+                }
                 else
                 {
                     // Check for the (array.Contains(p.Property)) or (new [] { value1, value2 }).Contains(p.Property))
@@ -917,7 +925,12 @@ namespace RepoDb
                     }
                 }
             }
-
+            else {
+                QueryGroup queryGroup;
+                if (TryParseDataProviderFunctions<TEntity>(expression, parentExpression, out queryGroup)){
+                    return queryGroup;
+                }
+            }
             // Return null if not supported
             return null;
         }
@@ -1099,6 +1112,10 @@ namespace RepoDb
                 return null;
             }
 
+            // TODO: Inject IDataProviderFunctionBuilder dependency; hard-coded for now to SQL Server.
+            var dataProviderFunctionExtractor = new DataProviderFunctionExtractor(new SqlServerFunctionBuilder());
+            dataProviderFunctionExtractor.Extract(expression);
+
             // Get the value arg
             var value = Convert.ToString(expression.Arguments.FirstOrDefault()?.GetValue());
 
@@ -1109,7 +1126,7 @@ namespace RepoDb
             }
 
             // Make sure it is a property info
-            var member = expression.Object.ToMember().Member;
+            var member = dataProviderFunctionExtractor.MemberExpression.ToMember().Member;
             if (member.IsPropertyInfo() == false)
             {
                 throw new NotSupportedException($"Expression '{expression.ToString()}' is currently not supported.");
@@ -1128,12 +1145,68 @@ namespace RepoDb
             var operation = (isNot == isEqualsTo) ? Operation.NotLike : Operation.Like;
             var queryField = new QueryField(PropertyMappedNameCache.Get(property),
                 operation,
-                ConvertToLikeableValue(expression.Method.Name, value));
+                ConvertToLikeableValue(expression.Method.Name, value),
+                dataProviderFunctionExtractor.ExtractedDataProviderFunctions);
 
             // Return the result
             return new QueryGroup(queryField.AsEnumerable());
         }
 
+        private static bool TryParseDataProviderFunctions<TEntity>(MethodCallExpression expression, 
+            BinaryExpression parentExpression,
+            out QueryGroup queryGroup) 
+            where TEntity : class
+        {
+            queryGroup = null;
+
+            if (parentExpression == null) {
+                return false;
+            }
+
+            // TODO: Inject IDataProviderFunctionBuilder dependency; hard-coded for now to SQL Server.
+            var dataProviderFunctionExtractor = new DataProviderFunctionExtractor(new SqlServerFunctionBuilder());
+            dataProviderFunctionExtractor.Extract(expression);
+            
+            if (dataProviderFunctionExtractor.ExtractedDataProviderFunctions.Count == 0) 
+            {
+                return false;
+            }
+
+            // Get the value arg
+            var value = Convert.ToString(parentExpression.Right.GetValue());
+
+            // Make sure it has a value
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new NotSupportedException($"Expression '{expression.ToString()}' is currently not supported.");
+            }
+
+            // Make sure it is a property info
+            var member = dataProviderFunctionExtractor.MemberExpression.ToMember().Member;
+            if (member.IsPropertyInfo() == false)
+            {
+                throw new NotSupportedException($"Expression '{expression.ToString()}' is currently not supported.");
+            }
+
+            // Get the property
+            var property = member.ToPropertyInfo();
+
+            // Make sure the property is in the entity
+            if (PropertyCache.Get<TEntity>().FirstOrDefault(p => string.Equals(p.PropertyInfo.Name, property.Name, StringComparison.OrdinalIgnoreCase)) == null)
+            {
+                throw new InvalidExpressionException($"Invalid expression '{expression.ToString()}'. The property {property.Name} is not defined on a target type '{typeof(TEntity).FullName}'.");
+            }
+
+            // Add to query fields; support = and != only for now.
+            var operation = parentExpression.NodeType == ExpressionType.Equal ? Operation.Equal : Operation.NotEqual;
+            var queryField = new QueryField(PropertyMappedNameCache.Get(property),
+                operation,
+                value,
+                dataProviderFunctionExtractor.ExtractedDataProviderFunctions);
+
+            queryGroup = new QueryGroup(queryField.AsEnumerable());
+            return true;
+        }
         private static string ConvertToLikeableValue(string methodName,
             string value)
         {

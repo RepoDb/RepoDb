@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Dynamic;
 using System.Linq;
+using RepoDb.DataProviderFunctions.DataProviderFunctionBuilders;
 using RepoDb.Enumerations;
 using RepoDb.Interfaces;
 
@@ -39,7 +40,9 @@ namespace RepoDb.Extensions
         internal static string AsField(this QueryField queryField,
             IDbSetting dbSetting)
         {
-            return queryField.Field.Name.AsField(dbSetting);
+            var result = queryField.Field.Name.AsField(dbSetting);
+            ApplyServerFunctionsIfNeeded(queryField, dbSetting, ref result);
+            return result;
         }
 
         // AsParameter
@@ -141,6 +144,12 @@ namespace RepoDb.Extensions
                 expandoObject.Add(queryField.Field.Name, queryField.Parameter.Value);
             }
             return expandoObject;
+        }
+
+        private static void ApplyServerFunctionsIfNeeded(QueryField queryField, IDbSetting dbSetting, ref string fieldName) {
+            // TODO: Inject provider-specific IDataProviderFunctionBuilder  
+            IDataProviderFunctionBuilder dataProviderFunctionBuilder = new SqlServerFunctionBuilder(fieldName, queryField.Field.DataProviderFunctions);
+            fieldName = dataProviderFunctionBuilder.Build();
         }
     }
 }

@@ -1,8 +1,10 @@
 ﻿using RepoDb.Attributes;
+using RepoDb.DataProviderFunctions;
 using RepoDb.Enumerations;
 using RepoDb.Exceptions;
 using RepoDb.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -114,6 +116,25 @@ namespace RepoDb
             Field = field;
             Operation = operation;
             Parameter = new Parameter(field.Name, value, appendUnderscore);
+        }
+
+        /// <summary>
+        /// Creates a new instance of <see cref="QueryField"/> object.
+        /// </summary>
+        /// <param name="fieldName">The name of the field for the query expression.</param>
+        /// <param name="operation">The operation to be used for the query expression.</param>
+        /// <param name="value">The value to be used for the query expression.</param>
+        /// <param name="dataProviderFunctions">Data provider functions</param>
+        public QueryField(string fieldName,
+            Operation operation,
+            object value,
+            IEnumerable<DataProviderFunction> dataProviderFunctions)
+            : this(fieldName,
+                  operation,
+                  value,
+                  false)
+        {
+            Field.DataProviderFunctions = dataProviderFunctions;
         }
 
         #endregion
